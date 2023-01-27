@@ -1,11 +1,11 @@
 class FlatsController < ApplicationController
+  before_action :set_flat, only: %i[show edit update destroy]
+
   def index
     @flats = Flat.all
   end
 
-  def show
-    @flat = Flat.find(params[:id])
-  end
+  def show; end
 
   def new
     @flat = Flat.new
@@ -16,12 +16,9 @@ class FlatsController < ApplicationController
     @flat.save ? (redirect_to flat_path(@flat)) : (render :new, status: :unprocessable_entity)
   end
 
-  def edit
-    @flat = Flat.find(params[:id])
-  end
+  def edit; end
 
   def update
-    @flat = Flat.find(params[:id])
     @flat.update(flat_params)
     redirect_to flat_path(@flat)
   end
@@ -31,9 +28,18 @@ class FlatsController < ApplicationController
     redirect_to flats_path, status: :see_other
   end
 
+  def search
+    @results = Flat.where('name LIKE :search OR address LIKE :search OR description LIKE :search',
+                          search: "%#{params[:search_term]}%")
+  end
+
   private
 
   def flat_params
     params.require(:flat).permit(:name, :address, :description, :price_per_night, :number_of_guests)
+  end
+
+  def set_flat
+    @flat = Flat.find(params[:id])
   end
 end
